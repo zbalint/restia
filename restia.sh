@@ -415,8 +415,8 @@ function log_result_footer() {
 
 function is_host_up() {
     local ping_host="$1"
-    local ping_count=1
-    local ping_timeout=2
+    local ping_count=5
+    local ping_timeout=3
 
     ping -c ${ping_count} -W ${ping_timeout} "${ping_host}" > /dev/null 2>&1
 }
@@ -1241,6 +1241,7 @@ function backup_client() {
         fi
     else
         log_result "[host: OFFLINE] "
+        log_result "[connection: ERROR ] "
         log_result "[local: FAILED] "
         log_result "[remote: FAILED] "
 
@@ -1436,12 +1437,14 @@ function backup() {
 
     log_result_header
     log_result "Backup type: ${type}"; log_result_end
-    if ! backup_"${type}" || ! prune; then
+    if ! backup_"${type}"; then
         log_result_footer
         ping_healthchecks_io "error"
         send_gotify_notification "Backup FAILED" "$(get_config_value "LOG_VIEWER_ADDRESS")/${BACKUP_LOG_FILE_NAME}"
     fi
     log_result_footer
+
+    prune
 
     ping_healthchecks_io "stop"
     
