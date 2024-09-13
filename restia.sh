@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export HOME=/root
+
 # consts
 readonly TIMER="$(date +%s)"
 readonly SCRIPT_START_DATE="$(date +%Y-%m-%d-%H-%M-%S)"
