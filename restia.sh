@@ -56,7 +56,7 @@ Description=Restia Rclone WebDAV Service
 After=network.target
 
 [Service]
-ExecStart=RCLONE_WEBDAV_SCRIPT_PATH
+ExecStart=bash RCLONE_WEBDAV_SCRIPT_PATH
 Restart=always
 
 [Install]
@@ -71,7 +71,7 @@ Wants=network.target
 
 [Service]
 Type=oneshot
-ExecStart=SCRIPT_PATH backup hot
+ExecStart=bash SCRIPT_PATH backup hot
 EOF
 
 IFS='' read -r -d '' COLD_BACKUP_SCRIPT_SERVICE <<"EOF"
@@ -82,7 +82,7 @@ Wants=network.target
 
 [Service]
 Type=oneshot
-ExecStart=SCRIPT_PATH backup cold
+ExecStart=bash SCRIPT_PATH backup cold
 EOF
 
 IFS='' read -r -d '' HOT_BACKUP_SCRIPT_SERVICE_TIMER <<"EOF"
