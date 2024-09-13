@@ -480,7 +480,7 @@ function validate_file() {
 function validate_directory() {
     local directory="$1"
 
-    if is_directory_exists "${directory}" && validate_file_permission "${directory}" "0700"; then
+    if is_directory_exists "${directory}" && validate_file_permission "${directory}" "700"; then
         return 0
     fi
 
