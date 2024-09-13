@@ -119,7 +119,7 @@ function enable() {
     WEBDAV_LISTEN_ADDRESS=$(get_config_value "WEBDAV_LISTEN_ADDRESS")
 
     log_info "Temporary remove clients file list."
-    mv "${CLIENTS_FILE_PATH}" "${CLIENTS_FILE_PATH}.orig" && touch "${CLIENTS_FILE_PATH}"
+    mv "${CLIENTS_FILE_PATH}" "${CLIENTS_FILE_PATH}.orig" && touch "${CLIENTS_FILE_PATH}" && chmod 0600 "${CLIENTS_FILE_PATH}"
 
     log_info "Creating webdav service."
     
