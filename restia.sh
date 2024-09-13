@@ -62,7 +62,7 @@ ExecStart=bash RCLONE_WEBDAV_SCRIPT_PATH
 Restart=always
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
 EOF
 
 IFS='' read -r -d '' HOT_BACKUP_SCRIPT_SERVICE <<"EOF"
