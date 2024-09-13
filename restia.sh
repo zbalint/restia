@@ -11,7 +11,7 @@ readonly COMMANDS=(help repo snap status backup restore enable disable)
 readonly REPO_COMMANDS=(init)
 readonly SNAP_COMMANDS=(list create restore delete)
 
-readonly BASE_DIRECTORY_PATH="/home/zbalint/Workspace/restic-backup-helper/kopia"
+readonly BASE_DIRECTORY_PATH="/root/restia"
 readonly CONFIG_DIRECTORY_PATH="${BASE_DIRECTORY_PATH}/config"
 readonly MOUNT_DIRECTORY_PATH="/mnt/${SCRIPT_BASE_NAME}"
 readonly SCRIPT_DIRECTORY_PATH="${BASE_DIRECTORY_PATH}/script"
