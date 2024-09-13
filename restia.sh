@@ -313,7 +313,7 @@ function log() {
 
     # prints the log message int the following format SCRIPT_BASE_NAME - [hour:minute:second.nanosecond] [stack trace] [log level]: log message
     echo -n "${SCRIPT_BASE_NAME} - [${date_string:0:-6}] [${time_elapsed}] [${funcname:5:-1}] [${level}]: ${message}"
-    echo "${SCRIPT_BASE_NAME} - [${date_string:0:-6}] [${time_elapsed}] [${funcname:5:-1}] [${level}]: ${message}" "${LOG_FILE_PATH}"
+    echo "${SCRIPT_BASE_NAME} - [${date_string:0:-6}] [${time_elapsed}] [${funcname:5:-1}] [${level}]: ${message}" >> "${LOG_FILE_PATH}"
     # printf "%s" "${SCRIPT_BASE_NAME} - [${date_string:0:-6}] [${funcname:5:-1}] [${level}]: ${message}"
     if ! is_var_equals "${level}" "INPUT"; then
         printf "\n"
