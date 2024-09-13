@@ -1442,6 +1442,8 @@ function backup() {
 
     mv "${result_file_path}" "${backup_log_file_path}"
     cat "${general_log_file_path}" >> "${backup_log_file_path}"
+
+    systemctl restart "${RCLONE_WEBDAV_SERIVCE_NAME}"
 }
 
 function restore_client() {
