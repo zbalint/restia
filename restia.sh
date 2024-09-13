@@ -118,6 +118,9 @@ function enable() {
     COLD_BACKUP_FREQUENCY=$(get_config_value "COLD_BACKUP_FREQUENCY")
     WEBDAV_LISTEN_ADDRESS=$(get_config_value "WEBDAV_LISTEN_ADDRESS")
 
+    log_info "Temporary remove clients file list."
+    mv "${CLIENTS_FILE_PATH}" "${CLIENTS_FILE_PATH}.orig" && touch "${CLIENTS_FILE_PATH}"
+
     log_info "Creating webdav service."
     
     RCLONE_WEBDAV_SCRIPT_TEST="${RCLONE_WEBDAV_SCRIPT/BACKUP_LOG_DIRECTORY_PATH/${BACKUP_LOG_DIRECTORY_PATH}}"
@@ -158,6 +161,9 @@ function enable() {
     log_info "journalctl --unit ${RCLONE_WEBDAV_SERIVCE_NAME}"
     log_info "journalctl --unit ${HOT_BACKUP_SCRIPT_SERVICE_TIMER_NAME}"
     log_info "journalctl --unit ${COLD_BACKUP_SCRIPT_SERVICE_TIMER_NAME}"
+
+    log_info "Temporary remove clients file list."
+    mv "${CLIENTS_FILE_PATH}.orig" "${CLIENTS_FILE_PATH}"
 }
 
 function disable() {
