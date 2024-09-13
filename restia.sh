@@ -287,7 +287,7 @@ function log() {
         echo "${SCRIPT_BASE_NAME} - [${date_string:0:-6}] [${time_elapsed}] [${level}]: ${message}" >> "${LOG_FILE_PATH}"
         
         if ! is_var_equals "${level}" "INPUT"; then
-            echo
+            printf "\n"
         fi
 
         return 0
@@ -316,7 +316,7 @@ function log() {
     echo "${SCRIPT_BASE_NAME} - [${date_string:0:-6}] [${time_elapsed}] [${funcname:5:-1}] [${level}]: ${message}" "${LOG_FILE_PATH}"
     # printf "%s" "${SCRIPT_BASE_NAME} - [${date_string:0:-6}] [${funcname:5:-1}] [${level}]: ${message}"
     if ! is_var_equals "${level}" "INPUT"; then
-        echo
+        printf "\n"
     fi
 }
 
