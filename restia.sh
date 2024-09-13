@@ -528,19 +528,19 @@ function ping_healthchecks_io() {
 
     case "${operation}" in
         start)
-            curl --insecure -m 10 --retry 5 https://hc-ping.com/"${healthcheck_io}"/start > /dev/null 2>&1
+            curl --insecure https://hc-ping.com/"${healthcheck_io}"/start > /dev/null 2>&1
             ;;
         stop)
             result="$(cat "${RESULT_FILE_PATH}")"
             # local status_payload
             # status_payload=$(status 2>&1)
-            curl --insecure -fsS -m 10 --retry 5 --data-raw "${result}" https://hc-ping.com/"${healthcheck_io}" > /dev/null 2>&1
+            curl --insecure -fsS --data-raw "${result}" https://hc-ping.com/"${healthcheck_io}" > /dev/null 2>&1
             ;;
         error)
             result="$(cat "${RESULT_FILE_PATH}")"
             # local status_payload
             # status_payload=$(status 2>&1)
-            curl --insecure -fsS -m 10 --retry 5 --data-raw "${result}" https://hc-ping.com/"${healthcheck_io}/fail" > /dev/null 2>&1
+            curl --insecure -fsS --data-raw "${result}" https://hc-ping.com/"${healthcheck_io}/fail" > /dev/null 2>&1
             ;;
     esac
 }
