@@ -116,39 +116,38 @@ function enable() {
     WEBDAV_LISTEN_ADDRESS=$(get_config_value "WEBDAV_LISTEN_ADDRESS")
 
     log_info "Creating webdav service."
-    # echo "${RCLONE_WEBDAV_SCRIPT/BACKUP_LOG_DIRECTORY_PATH/${BACKUP_LOG_DIRECTORY_PATH}}" > "${RCLONE_WEBDAV_SCRIPT_PATH}"
     
     RCLONE_WEBDAV_SCRIPT_TEST="${RCLONE_WEBDAV_SCRIPT/BACKUP_LOG_DIRECTORY_PATH/${BACKUP_LOG_DIRECTORY_PATH}}"
     RCLONE_WEBDAV_SCRIPT_TEST="${RCLONE_WEBDAV_SCRIPT_TEST/WEBDAV_LISTEN_ADDRESS/${WEBDAV_LISTEN_ADDRESS}}"
-    echo "${RCLONE_WEBDAV_SCRIPT_TEST}" > "${RCLONE_WEBDAV_SCRIPT_PATH}"
+    "${RCLONE_WEBDAV_SCRIPT_TEST}" > "${RCLONE_WEBDAV_SCRIPT_PATH}"
     
-    echo "${RCLONE_WEBDAV_SERVICE/RCLONE_WEBDAV_SCRIPT_PATH/${RCLONE_WEBDAV_SCRIPT_PATH}}" > "${RCLONE_WEBDAV_SERIVCE_PATH}"
+    "${RCLONE_WEBDAV_SERVICE/RCLONE_WEBDAV_SCRIPT_PATH/${RCLONE_WEBDAV_SCRIPT_PATH}}" > "${RCLONE_WEBDAV_SERIVCE_PATH}"
 
     log_info "Creating hot backup service."
-    echo "${HOT_BACKUP_SCRIPT_SERVICE/SCRIPT_PATH/${SCRIPT_PATH}}" > "${HOT_BACKUP_SCRIPT_SERVICE_PATH}"
-    echo cp "${HOT_BACKUP_SCRIPT_SERVICE_PATH}" /etc/systemd/system/
+    "${HOT_BACKUP_SCRIPT_SERVICE/SCRIPT_PATH/${SCRIPT_PATH}}" > "${HOT_BACKUP_SCRIPT_SERVICE_PATH}"
+    cp "${HOT_BACKUP_SCRIPT_SERVICE_PATH}" /etc/systemd/system/
 
     log_info "Creating cold backup service."
-    echo "${COLD_BACKUP_SCRIPT_SERVICE/SCRIPT_PATH/${SCRIPT_PATH}}" > "${COLD_BACKUP_SCRIPT_SERVICE_PATH}"
-    echo cp "${COLD_BACKUP_SCRIPT_SERVICE_PATH}" /etc/systemd/system/
+    "${COLD_BACKUP_SCRIPT_SERVICE/SCRIPT_PATH/${SCRIPT_PATH}}" > "${COLD_BACKUP_SCRIPT_SERVICE_PATH}"
+    cp "${COLD_BACKUP_SCRIPT_SERVICE_PATH}" /etc/systemd/system/
 
     log_info "Creating hot backup timer."
-    echo "${HOT_BACKUP_SCRIPT_SERVICE_TIMER/HOT_BACKUP_FREQUENCY/${HOT_BACKUP_FREQUENCY}}" > "${HOT_BACKUP_SCRIPT_SERVICE_TIMER_PATH}"
-    echo cp "${HOT_BACKUP_SCRIPT_SERVICE_TIMER_PATH}" /etc/systemd/system/
+    "${HOT_BACKUP_SCRIPT_SERVICE_TIMER/HOT_BACKUP_FREQUENCY/${HOT_BACKUP_FREQUENCY}}" > "${HOT_BACKUP_SCRIPT_SERVICE_TIMER_PATH}"
+    cp "${HOT_BACKUP_SCRIPT_SERVICE_TIMER_PATH}" /etc/systemd/system/
 
     log_info "Creating cold backup timer."
-    echo "${COLD_BACKUP_SCRIPT_SERVICE_TIMER/COLD_BACKUP_FREQUENCY/${COLD_BACKUP_FREQUENCY}}" > "${COLD_BACKUP_SCRIPT_SERVICE_TIMER_PATH}"
-    echo cp "${COLD_BACKUP_SCRIPT_SERVICE_TIMER_PATH}" /etc/systemd/system/
+    "${COLD_BACKUP_SCRIPT_SERVICE_TIMER/COLD_BACKUP_FREQUENCY/${COLD_BACKUP_FREQUENCY}}" > "${COLD_BACKUP_SCRIPT_SERVICE_TIMER_PATH}"
+    cp "${COLD_BACKUP_SCRIPT_SERVICE_TIMER_PATH}" /etc/systemd/system/
 
-    echo systemctl daemon-reload
+    systemctl daemon-reload
 
-    echo systemctl enable --now "${RCLONE_WEBDAV_SERIVCE_NAME}"
-    echo systemctl enable --now "${HOT_BACKUP_SCRIPT_SERVICE_TIMER_NAME}"
-    echo systemctl enable --now "${COLD_BACKUP_SCRIPT_SERVICE_TIMER_NAME}"
+    systemctl enable --now "${RCLONE_WEBDAV_SERIVCE_NAME}"
+    systemctl enable --now "${HOT_BACKUP_SCRIPT_SERVICE_TIMER_NAME}"
+    systemctl enable --now "${COLD_BACKUP_SCRIPT_SERVICE_TIMER_NAME}"
     
-    echo systemctl status "${RCLONE_WEBDAV_SERIVCE_NAME}" --no-pager
-    echo systemctl status "${HOT_BACKUP_SCRIPT_SERVICE_TIMER_NAME}" --no-pager
-    echo systemctl status "${COLD_BACKUP_SCRIPT_SERVICE_TIMER_NAME}" --no-pager
+    systemctl status "${RCLONE_WEBDAV_SERIVCE_NAME}" --no-pager
+    systemctl status "${HOT_BACKUP_SCRIPT_SERVICE_TIMER_NAME}" --no-pager
+    systemctl status "${COLD_BACKUP_SCRIPT_SERVICE_TIMER_NAME}" --no-pager
     
     log_info "You can watch the logs with the following commands:"
     log_info "journalctl --unit ${RCLONE_WEBDAV_SERIVCE_NAME}"
@@ -157,17 +156,17 @@ function enable() {
 }
 
 function disable() {
-    echo systemctl disable --now "${RCLONE_WEBDAV_SERIVCE_NAME}"
-    echo systemctl disable --now "${HOT_BACKUP_SCRIPT_SERVICE_TIMER_NAME}"
-    echo systemctl disable --now "${COLD_BACKUP_SCRIPT_SERVICE_TIMER_NAME}"
+    systemctl disable --now "${RCLONE_WEBDAV_SERIVCE_NAME}"
+    systemctl disable --now "${HOT_BACKUP_SCRIPT_SERVICE_TIMER_NAME}"
+    systemctl disable --now "${COLD_BACKUP_SCRIPT_SERVICE_TIMER_NAME}"
 
-    echo rm -f "/etc/systemd/system/${RCLONE_WEBDAV_SERIVCE_NAME}.service"
-    echo rm -f "/etc/systemd/system/${HOT_BACKUP_SCRIPT_SERVICE_NAME}.service"
-    echo rm -f "/etc/systemd/system/${COLD_BACKUP_SCRIPT_SERVICE_NAME}.service"
-    echo rm -f "/etc/systemd/system/${HOT_BACKUP_SCRIPT_SERVICE_TIMER_NAME}.timer"
-    echo rm -f "/etc/systemd/system/${COLD_BACKUP_SCRIPT_SERVICE_TIMER_NAME}.timer"
+    rm -f "/etc/systemd/system/${RCLONE_WEBDAV_SERIVCE_NAME}.service"
+    rm -f "/etc/systemd/system/${HOT_BACKUP_SCRIPT_SERVICE_NAME}.service"
+    rm -f "/etc/systemd/system/${COLD_BACKUP_SCRIPT_SERVICE_NAME}.service"
+    rm -f "/etc/systemd/system/${HOT_BACKUP_SCRIPT_SERVICE_TIMER_NAME}.timer"
+    rm -f "/etc/systemd/system/${COLD_BACKUP_SCRIPT_SERVICE_TIMER_NAME}.timer"
     
-    echo systemctl daemon-reload
+    systemctl daemon-reload
 }
 
 # Check if the passed variable is empty or undefined.
