@@ -63,6 +63,7 @@ Restart=always
 
 [Install]
 WantedBy=default.target
+
 EOF
 
 IFS='' read -r -d '' HOT_BACKUP_SCRIPT_SERVICE <<"EOF"
@@ -125,6 +126,8 @@ function enable() {
     
     echo "${RCLONE_WEBDAV_SERVICE/RCLONE_WEBDAV_SCRIPT_PATH/${RCLONE_WEBDAV_SCRIPT_PATH}}" > "${RCLONE_WEBDAV_SERIVCE_PATH}"
 
+    cp "${RCLONE_WEBDAV_SERIVCE_PATH}" /etc/systemd/system/
+
     log_info "Creating hot backup service."
     echo "${HOT_BACKUP_SCRIPT_SERVICE/SCRIPT_PATH/${SCRIPT_PATH}}" > "${HOT_BACKUP_SCRIPT_SERVICE_PATH}"
     cp "${HOT_BACKUP_SCRIPT_SERVICE_PATH}" /etc/systemd/system/
@@ -144,8 +147,8 @@ function enable() {
     systemctl daemon-reload
 
     systemctl enable --now "${RCLONE_WEBDAV_SERIVCE_NAME}"
-    systemctl enable --now "${HOT_BACKUP_SCRIPT_SERVICE_TIMER_NAME}"
-    systemctl enable --now "${COLD_BACKUP_SCRIPT_SERVICE_TIMER_NAME}"
+    systemctl enable --now "${HOT_BACKUP_SCRIPT_SERVICE_TIMER_NAME}.timer"
+    systemctl enable --now "${COLD_BACKUP_SCRIPT_SERVICE_TIMER_NAME}.timer"
     
     systemctl status "${RCLONE_WEBDAV_SERIVCE_NAME}" --no-pager
     systemctl status "${HOT_BACKUP_SCRIPT_SERVICE_TIMER_NAME}" --no-pager
@@ -607,6 +610,10 @@ function validate_config() {
         log_error "The CLIENTS_FILE_PATH is empty or the file does not exists or the file permissions are wrong!"
         # commented out because the dev environment filesystem permission limitations
         exit 1
+    else 
+        if [ "$(cat "${CLIENTS_FILE_PATH}" | wc -l)" -eq 0 ]; then
+            log_warn "The CLIENT_FILE '${CLIENTS_FILE_PATH}' is empty!"
+        fi
     fi
 
     if ! validate_directory "${MOUNT_DIRECTORY_PATH}"; then
@@ -1287,12 +1294,6 @@ function backup_hot() {
     local total
     local count
     local backup_overall_status=0
-
-    if [[ -t 0 ]] && [[ -f "/etc/systemd/system/${HOT_BACKUP_SCRIPT_SERVICE_NAME}.service" ]]; then
-        ## Run by triggering the systemd unit, so everything gets logged:
-        trigger_hot_backup
-        return 0
-    fi
     
     total=$(cat "${CLIENTS_FILE_PATH}" | wc -l)
     total=$((total+1))
@@ -1325,12 +1326,6 @@ function backup_cold() {
     local total
     local count
     local backup_overall_status=0
-
-    if [[ -t 0 ]] && [[ -f "/etc/systemd/system/${COLD_BACKUP_SCRIPT_SERVICE_NAME}.service" ]]; then
-        ## Run by triggering the systemd unit, so everything gets logged:
-        trigger_cold_backup
-        return 0
-    fi
 
     total=$(cat "${CLIENTS_FILE_PATH}" | wc -l)
     total=$((total+1))
@@ -1400,9 +1395,26 @@ function backup() {
     local backup_log_file_path
     local result_file_path
 
+    if [[ -t 0 ]] && [[ -f "/etc/systemd/system/${HOT_BACKUP_SCRIPT_SERVICE_NAME}.service" ]]; then
+        ## Run by triggering the systemd unit, so everything gets logged:
+        trigger_hot_backup
+        return 0
+    fi
+
+    if [[ -t 0 ]] && [[ -f "/etc/systemd/system/${COLD_BACKUP_SCRIPT_SERVICE_NAME}.service" ]]; then
+        ## Run by triggering the systemd unit, so everything gets logged:
+        trigger_cold_backup
+        return 0
+    fi
+
     if ! is_var_equals "${type}" "cold" && ! is_var_equals "${type}" "hot"; then
         log_error "Invalid backup type! Possible values: hot|cold"
         return 1
+    fi
+
+    if [ "$(cat "${CLIENTS_FILE_PATH}" | wc -l)" -eq 0 ]; then
+        log_warn "The CLIENT_FILE '${CLIENTS_FILE_PATH}' is empty!"
+        return 0
     fi
 
     ping_healthchecks_io "start"
