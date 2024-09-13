@@ -1286,6 +1286,12 @@ function backup_hot() {
     local total
     local count
     local backup_overall_status=0
+
+    if [[ -t 0 ]] && [[ -f "/etc/systemd/system/${HOT_BACKUP_SCRIPT_SERVICE_NAME}.service" ]]; then
+        ## Run by triggering the systemd unit, so everything gets logged:
+        trigger_hot_backup
+        return 0
+    fi
     
     total=$(cat "${CLIENTS_FILE_PATH}" | wc -l)
     total=$((total+1))
@@ -1318,6 +1324,12 @@ function backup_cold() {
     local total
     local count
     local backup_overall_status=0
+
+    if [[ -t 0 ]] && [[ -f "/etc/systemd/system/${COLD_BACKUP_SCRIPT_SERVICE_NAME}.service" ]]; then
+        ## Run by triggering the systemd unit, so everything gets logged:
+        trigger_cold_backup
+        return 0
+    fi
 
     total=$(cat "${CLIENTS_FILE_PATH}" | wc -l)
     total=$((total+1))
@@ -1534,6 +1546,16 @@ function restore() {
     cp "${general_log_file_path}" "${restore_log_file_path}"
 
     return 0
+}
+
+function trigger_hot_backup() {
+    (set -x; systemctl start "${HOT_BACKUP_SCRIPT_SERVICE_NAME}".service)
+    log_info "systemd is now running the restia hot backup job in the background. Check 'status' later."
+}
+
+function trigger_cold_backup() {
+    (set -x; systemctl start "${COLD_BACKUP_SCRIPT_SERVICE_NAME}".service)
+    log_info "systemd is now running the restia cold backup job in the background. Check 'status' later."
 }
 
 function init() {
