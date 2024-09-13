@@ -35,6 +35,7 @@ readonly COLD_BACKUP_SCRIPT_SERVICE_TIMER_NAME="${SCRIPT_BASE_NAME}-cold-backup"
 readonly LOG_FILE_PATH="${GENERAL_LOG_DIRECTORY_PATH}/${LOG_FILE_NAME}"
 readonly RESULT_FILE_PATH="${GENERAL_LOG_DIRECTORY_PATH}/${SCRIPT_BASE_NAME}-${SCRIPT_START_DATE}.result"
 readonly CONFIG_FILE_PATH="${CONFIG_DIRECTORY_PATH}/${SCRIPT_BASE_NAME}.conf"
+readonly ONLINE_CLIENTS_FILE_URL="https://raw.githubusercontent.com/zbalint/restia/master/config/clients.conf"
 readonly CLIENTS_FILE_PATH="${CONFIG_DIRECTORY_PATH}/clients.conf"
 readonly RCLONE_WEBDAV_SCRIPT_PATH="${SCRIPT_DIRECTORY_PATH}/${SCRIPT_BASE_NAME}-webdav-server.sh"
 readonly RCLONE_WEBDAV_SERIVCE_PATH="${SERVICE_DIRECTORY_PATH}/${RCLONE_WEBDAV_SERIVCE_NAME}.service"
@@ -760,6 +761,12 @@ function validate_repository_type() {
     fi
 }
 
+function update_client_list() {
+    log_info "Downloading clients file list."
+    wget --quiet "${ONLINE_CLIENTS_FILE_URL}" -O "${CLIENTS_FILE_PATH}"
+    chmod 600 "${CLIENTS_FILE_PATH}"
+}
+
 # Call print_help funtion to print usage infromation
 function help() {
     print_help "${COMMANDS[*]}"
@@ -1417,6 +1424,8 @@ function backup() {
         log_error "Invalid backup type! Possible values: hot|cold"
         return 1
     fi
+
+    update_client_list
 
     if [ "$(cat "${CLIENTS_FILE_PATH}" | wc -l)" -eq 0 ]; then
         log_warn "The CLIENT_FILE '${CLIENTS_FILE_PATH}' is empty!"
