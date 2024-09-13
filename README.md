@@ -1,2 +1,2 @@
 # restia
- My homelab backup soltution written in bash
+ My homelab backup solution written in bash
