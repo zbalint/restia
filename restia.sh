@@ -686,6 +686,12 @@ function validate_config() {
     validate_config_value "WEBDAV_LISTEN_ADDRESS"
     validate_config_value "HOT_BACKUP_FREQUENCY"
     validate_config_value "COLD_BACKUP_FREQUENCY"
+    validate_config_value "RETENTION_KEEP_YEARLY"
+    validate_config_value "RETENTION_KEEP_MONTHLY"
+    validate_config_value "RETENTION_KEEP_WEEKLY"
+    validate_config_value "RETENTION_KEEP_DAILY"
+    validate_config_value "RETENTION_KEEP_HOURLY"
+    validate_config_value "RETENTION_KEEP_LAST"
 }
 
 # Print usage infromation
@@ -1338,6 +1344,42 @@ function backup_cold() {
     return ${backup_overall_status}
 }
 
+function prune() {
+    local local_repository_path
+    local local_repository_password
+    local remote_repository_path
+    local remote_repository_password
+    local local_repository_prune_result
+    local remote_repository_prune_result
+
+    local_repository_path=$(get_config_value "LOCAL_REPOSITORY_PATH")
+    local_repository_password=$(get_config_value "KOPIA_REPOSITORY_PASSWORD")
+    remote_repository_path=$(get_config_value "REMOTE_REPOSITORY_PATH")
+    remote_repository_password=$(get_config_value "RESTIC_REPOSITORY_PASSWORD")
+
+    log_info "Removed expired snapshots from local repository."
+    kopia repository connect filesystem --password="${local_repository_path}" --path="${local_repository_password}" > /dev/null 2>&1 && \
+    kopia snapshot expire --all 2>&1 | log_harvest
+    local_repository_prune_result=${PIPESTATUS[0]}
+
+    log_info "Removed expired snapshots from remote repository."
+    RESTIC_REPOSITORY="${remote_repository_path}" RESTIC_PASSWORD="${remote_repository_password}" restic forget \
+    --keep-yearly "$(get_config_value "RETENTION_KEEP_YEARLY")" \
+    --keep-monthly "$(get_config_value "RETENTION_KEEP_MONTHLY")" \
+    --keep-weekly "$(get_config_value "RETENTION_KEEP_WEEKLY")" \
+    --keep-daily "$(get_config_value "RETENTION_KEEP_DAILY")" \
+    --keep-hourly "$(get_config_value "RETENTION_KEEP_HOURLY")" \
+    --keep-last "$(get_config_value "RETENTION_KEEP_LAST")" \
+    --prune 2>&1 | log_harvest
+    remote_repository_prune_result=${PIPESTATUS[0]}
+
+    if [ "${local_repository_prune_result}" -gt 0 ] || [ "${remote_repository_prune_result}" -gt 0 ]; then
+        return 1
+    fi
+
+    return 0
+}
+
 # Backup clients
 function backup() {
     local type="$1"; shift
@@ -1354,7 +1396,7 @@ function backup() {
 
     log_result_header
     log_result "Backup type: ${type}"; log_result_end
-    if ! backup_"${type}"; then
+    if ! backup_"${type}" || ! prune; then
         log_result_footer
         ping_healthchecks_io "error"
         send_gotify_notification "Backup FAILED" "$(get_config_value "LOG_VIEWER_ADDRESS")/${BACKUP_LOG_FILE_NAME}"
