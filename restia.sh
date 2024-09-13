@@ -162,7 +162,7 @@ function enable() {
     log_info "journalctl --unit ${HOT_BACKUP_SCRIPT_SERVICE_TIMER_NAME}"
     log_info "journalctl --unit ${COLD_BACKUP_SCRIPT_SERVICE_TIMER_NAME}"
 
-    log_info "Temporary remove clients file list."
+    log_info "Restore original clients file list."
     mv "${CLIENTS_FILE_PATH}.orig" "${CLIENTS_FILE_PATH}"
 }
 
