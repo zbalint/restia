@@ -469,7 +469,7 @@ function validate_file_permission() {
 function validate_file() {
     local file="$1"
 
-    if is_file_exists "${file}" && validate_file_permission "${file}" "0600"; then
+    if is_file_exists "${file}" && validate_file_permission "${file}" "600"; then
         return 0
     fi
 
@@ -658,7 +658,7 @@ function validate_config() {
     if ! validate_directory "${LOCAL_REPOSITORY_PATH}" ; then
         log_error "The LOCAL_REPOSITORY_PATH does not exists or the directory permissions are wrong!"
         # commented out because the dev environment filesystem permission limitations
-        # exit 1
+        exit 1
     fi
 
     if validate_optional_config_value "DEBUG_LOG"; then
