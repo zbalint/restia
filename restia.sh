@@ -655,6 +655,7 @@ function validate_config() {
     # Validate config
 
     validate_config_value "LOCAL_REPOSITORY_PATH"
+    local LOCAL_REPOSITORY_PATH="$(get_config_value "${LOCAL_REPOSITORY_PATH}")"
     if ! validate_directory "${LOCAL_REPOSITORY_PATH}" ; then
         log_error "The LOCAL_REPOSITORY_PATH does not exists or the directory permissions are wrong!"
         # commented out because the dev environment filesystem permission limitations
