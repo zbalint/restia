@@ -458,11 +458,11 @@ function validate_file_permission() {
     local file="$1"
     local permission="$2"
 
-    if [[ $(stat -c "%a" "${file}") != "${permission}" ]]; then
-        return 1
+    if [[ $(stat -c "%a" "${file}") -eq "${permission}" ]]; then
+        return 0
     fi
 
-    return 0
+    return 1
 }
 
 # Check if the file 'file' exists and has a permission 0700
@@ -587,31 +587,31 @@ function validate_config() {
     if ! validate_directory "${BASE_DIRECTORY_PATH}"; then
         log_error "The BASE_DIRECTORY_PATH is empty or the directory does not exists or the directory permissions are wrong!"
         # commented out because the dev environment filesystem permission limitations
-        # exit 1
+        exit 1
     fi
     
     if ! validate_directory "${CONFIG_DIRECTORY_PATH}"; then
         log_error "The CONFIG_DIRECTORY_PATH is empty or the directory does not exists or the directory permissions are wrong!"
         # commented out because the dev environment filesystem permission limitations
-        # exit 1
+        exit 1
     fi
     
     if ! validate_file "${CONFIG_FILE_PATH}"; then
         log_error "The CONFIG_FILE_PATH is empty or the file does not exists or the file permissions are wrong!"
         # commented out because the dev environment filesystem permission limitations
-        # exit 1
+        exit 1
     fi
 
     if ! validate_file "${CLIENTS_FILE_PATH}"; then
         log_error "The CLIENTS_FILE_PATH is empty or the file does not exists or the file permissions are wrong!"
         # commented out because the dev environment filesystem permission limitations
-        # exit 1
+        exit 1
     fi
 
     if ! validate_directory "${MOUNT_DIRECTORY_PATH}"; then
         log_error "The MOUNT_DIRECTORY_PATH is empty or the directory does not exists or the directory permissions are wrong!"
         # commented out because the dev environment filesystem permission limitations
-        # exit 1
+        exit 1
     fi
 
     if ! validate_directory "${LOG_DIRECTORY_PATH}"; then
