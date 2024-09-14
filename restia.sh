@@ -418,8 +418,8 @@ function is_host_up() {
     local ping_count=5
     local ping_timeout=5
 
-    # ping -c ${ping_count} -W ${ping_timeout} "${ping_host}" > /dev/null 2>&1
-    tailscale ping --c ${ping_count} --timeout ${ping_timeout} --until-direct "${ping_host}" > /dev/null 2>&1
+    ping -c ${ping_count} -w ${ping_timeout} "${ping_host}" > /dev/null 2>&1
+    # tailscale ping --c ${ping_count} --timeout ${ping_timeout} --until-direct "${ping_host}" > /dev/null 2>&1
 }
 
 # Check if the file is exists
