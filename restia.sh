@@ -1223,32 +1223,26 @@ function backup_client() {
 
     log_info "Starting backup for client '${client}'"
 
-    if is_host_up "${hostname}"; then
-        local connection
+    local connection
 
-        log_info "Checking connection with client '${client}'."
-        tailscale ping -c 3 "${hostname}" 2>&1 | log_harvest
+    log_info "Checking connection with client '${client}'."
+    tailscale ping -c 3 "${hostname}" 2>&1 | log_harvest
 
-        connection=$(tailscale status | grep "${hostname}" | awk '{print $5 $6}')
+    connection=$(tailscale status | grep "${hostname}" | awk '{print $5 $6}')
 
-        log_result "[host: ONLINE ] "
-
-        if is_var_equals "${connection}" "active;direct"; then
-            log_result "[connection: DIRECT] "
-        elif is_var_equals "${connection}" "active;relay"; then
-            log_result "[connection: RELAY ] "
-        else
-            log_result "[connection: ERROR ] "
-        fi
-    else
-        log_result "[host: OFFLINE] "
-        log_result "[connection: ERROR ] "
-        log_result "[local: FAILED] "
-        log_result "[remote: FAILED] "
-
+    if is_var_equals "${connection}" "active;direct"; then
+        log_result "[connection: DIRECT] "
+    elif is_var_equals "${connection}" "active;relay"; then
+        log_result "[connection: RELAY ] "
+    elif is_var_equals "${connection}" "offline"; then
+        log_result "[connection: OFFLINE ] "
+        log_result "[local:  SKIP ] "
+        log_result "[remote:  SKIP ] "
         log_error "Failed to create local backup for client '${client}'"
-        log_error "The client is offline."
-        return 1
+        log_warn "The client is offline."
+        return 0
+    else
+        log_result "[connection: ERROR ] "
     fi
 
     # mount sshfs
