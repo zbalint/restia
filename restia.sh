@@ -1226,7 +1226,7 @@ function backup_client() {
     local connection
 
     log_info "Checking connection with client '${client}'."
-    tailscale ping -c 3 "${hostname}" 2>&1 | log_harvest
+    tailscale ping --c 10 --timeout 10s --until-direct "${hostname}" 2>&1 | log_harvest
 
     connection=$(tailscale status | grep "${hostname}" | awk '{print $5 $6}')
 
