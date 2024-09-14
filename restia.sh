@@ -528,19 +528,19 @@ function ping_healthchecks_io() {
 
     case "${operation}" in
         start)
-            curl --insecure https://hc-ping.com/"${healthcheck_io}"/start > /dev/null 2>&1
+            curl --insecure -m 10 --retry 5 https://hc-ping.com/"${healthcheck_io}"/start > /dev/null 2>&1
             ;;
         stop)
             result="$(cat "${RESULT_FILE_PATH}")"
             # local status_payload
             # status_payload=$(status 2>&1)
-            curl --insecure -fsS --data-raw "${result}" https://hc-ping.com/"${healthcheck_io}" > /dev/null 2>&1
+            curl --insecure -fsS -m 10 --retry 5 --data-raw "${result}" https://hc-ping.com/"${healthcheck_io}" > /dev/null 2>&1
             ;;
         error)
             result="$(cat "${RESULT_FILE_PATH}")"
             # local status_payload
             # status_payload=$(status 2>&1)
-            curl --insecure -fsS --data-raw "${result}" https://hc-ping.com/"${healthcheck_io}/fail" > /dev/null 2>&1
+            curl --insecure -fsS -m 10 --retry 5 --data-raw "${result}" https://hc-ping.com/"${healthcheck_io}/fail" > /dev/null 2>&1
             ;;
     esac
 }
@@ -1408,6 +1408,7 @@ function backup() {
     local general_log_file_path
     local backup_log_file_path
     local result_file_path
+    local result=0
 
     if [[ -t 0 ]] && [[ -f "/etc/systemd/system/${HOT_BACKUP_SCRIPT_SERVICE_NAME}.service" ]]; then
         ## Run by triggering the systemd unit, so everything gets logged:
@@ -1441,12 +1442,15 @@ function backup() {
         log_result_footer
         ping_healthchecks_io "error"
         send_gotify_notification "Backup FAILED" "$(get_config_value "LOG_VIEWER_ADDRESS")/${BACKUP_LOG_FILE_NAME}"
+        result=1
     fi
     log_result_footer
 
     prune
 
-    ping_healthchecks_io "stop"
+    if [ "${result}" -eq 0 ]; then
+        ping_healthchecks_io "stop"
+    fi
     
     result_file_path=${RESULT_FILE_PATH}
     general_log_file_path="${LOG_FILE_PATH}"
@@ -1456,6 +1460,8 @@ function backup() {
     cat "${general_log_file_path}" >> "${backup_log_file_path}"
 
     systemctl restart "${RCLONE_WEBDAV_SERIVCE_NAME}"
+
+    return ${result}
 }
 
 function restore_client() {
