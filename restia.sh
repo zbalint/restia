@@ -385,12 +385,11 @@ function log_result_header() {
     backup_log_address="${web_viewer_address}/${BACKUP_LOG_FILE_NAME}"
     
     {
-        echo "***************************************************************************************"
-        echo "********************************** BACKUP RESULT **************************************"
-        echo "***************************************************************************************"
+        echo "*************************************************************************"
+        echo "*************************** BACKUP RESULT *******************************"
+        echo "*************************************************************************"
         echo "The complete log is available at:"
         echo "${backup_log_address}"
-        echo "***************************************************************************************"
     } > "${result_file}"
 }
 
@@ -410,7 +409,7 @@ function log_result_end() {
 
 function log_result_footer() {
     local result_file="${RESULT_FILE_PATH}"
-    echo "***************************************************************************************" >> "${result_file}"
+    echo "***************************************************************************************" >> ""
 }
 
 function is_host_up() {
@@ -1313,9 +1312,9 @@ function backup_hot() {
     
     while IFS= read -r client || [ -n "${client}" ]
     do
-        log_info "***************************************************************************************"
+        log_info "*************************************************************************"
         log_info "Starting hot backup of client ${client}. [${count}/${total}]"
-        log_info "***************************************************************************************"
+        log_info "*************************************************************************"
         log_result "Client: ${client} "; log_result_end
         if backup_client "${client}" "hot"; then
             log_result "[overall:   OK  ]"
@@ -1344,9 +1343,9 @@ function backup_cold() {
 
     while IFS= read -r client || [ -n "${client}" ]
     do
-        log_info "***************************************************************************************"
+        log_info "*************************************************************************"
         log_info "Starting cold backup of client ${client}. [${count}/${total}]"
-        log_info "***************************************************************************************"
+        log_info "*************************************************************************"
         log_result "Client: ${client} "; log_result_end
         if backup_client "${client}" "cold"; then
             log_result "[overall:   OK  ]"
@@ -1549,9 +1548,9 @@ function restore() {
         exit 1
     fi
 
-    log_info "***************************************************************************************"
+    log_info "*************************************************************************"
     log_info "Please check the following info before you proceed to the restore!"
-    log_info "***************************************************************************************"
+    log_info "*************************************************************************"
     log_info "Repository:    ${source}"
     log_info "Snapshot type: ${type}"
     log_info "Client:        ${selected_client}"
@@ -1560,7 +1559,7 @@ function restore() {
     log_info "Destination:   ${destination}"
     log_info "Tag:           ${tag}"
     log_info "Snapshot id:   ${snapshot}"
-    log_info "***************************************************************************************"
+    log_info "*************************************************************************"
     log_warn "Please be aware that the restoring process will overwrite the data at the destination path!"
     log_input "Would you like to restore the snapshot? (yes/no): "
     read -r -p "" answer
