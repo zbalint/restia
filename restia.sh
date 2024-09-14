@@ -1374,7 +1374,7 @@ function prune() {
     remote_repository_password=$(get_config_value "RESTIC_REPOSITORY_PASSWORD")
 
     log_info "Removed expired snapshots from local repository."
-    kopia repository connect filesystem --password="${local_repository_path}" --path="${local_repository_password}" > /dev/null 2>&1 && \
+    # kopia repository connect filesystem --password="${local_repository_path}" --path="${local_repository_password}" > /dev/null 2>&1 && \
     kopia snapshot expire --all --log-level=info 2>&1 | log_harvest
     local_repository_prune_result=${PIPESTATUS[0]}
 
