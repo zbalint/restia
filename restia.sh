@@ -1400,6 +1400,10 @@ function backup_override() {
     local type="$1"
     local client_id
     local selected_client
+    local username
+    local hostname
+    local source
+    local answer
 
     log_info "Manual ${type} backup process initiated."
 
@@ -1436,10 +1440,32 @@ function backup_override() {
     log_info "Writing selected client to clients file."
     echo -n "${selected_client}" > "${CLIENTS_FILE_PATH}"
 
-    if backup_"${type}"; then
-        log_info "Manual client backup succeeded!"
-    else 
-        log_error "Manual client backup failed!"
+    username=$(get_remote_user "${selected_client}")
+    hostname=$(get_remote_host "${selected_client}")
+    source=$(get_remote_path "${selected_client}")
+
+    log_info "*************************************************************************"
+    log_info "Please check the following info before you proceed to the backup!"
+    log_info "*************************************************************************"
+    log_info "Backup type: ${type}"
+    log_info "Client:      ${selected_client}"
+    log_info "Username:    ${username}"
+    log_info "Hostname:    ${hostname}"
+    log_info "Source:      ${source}"
+    log_info "*************************************************************************"
+    log_input "Would you like to backup the client? (yes/no): "
+    read -r -p "" answer
+
+    if is_var_equals "${answer}" "yes"; then
+        if backup_"${type}"; then
+            log_info "Manual client backup succeeded!"
+        else 
+            log_error "Manual client backup failed!"
+        fi
+    elif is_var_equals "${answer}" "no"; then
+        log_info "Exiting without backup the client!"
+    else
+        log_error "Invalid answer!"
     fi
 
     log_info "Restore original client list file."
