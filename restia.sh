@@ -1434,7 +1434,7 @@ function backup_override() {
     mv "${CLIENTS_FILE_PATH}" "${CLIENTS_FILE_PATH}.bak"
 
     log_info "Writing selected client to clients file."
-    echo "${selected_client}" > "${CLIENTS_FILE_PATH}"
+    echo -n "${selected_client}" > "${CLIENTS_FILE_PATH}"
 
     if backup_"${type}"; then
         log_info "Manual client backup succeeded!"
