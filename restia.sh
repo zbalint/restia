@@ -1396,9 +1396,62 @@ function prune() {
     return 0
 }
 
+function backup_override() {
+    local type="$1"
+    local client_id
+    local selected_client
+
+    log_info "Manual ${type} backup process initiated."
+
+    log_info "Backup original client list file."
+    # backup original client list file
+    mv "${CLIENTS_FILE_PATH}" "${CLIENTS_FILE_PATH}.bak"
+
+
+    log_info "Please select client from the following list:"
+    local counter=1
+    while IFS= read -r client || [ -n "${client}" ]
+    do
+        log_info "[${counter}] ${client}"
+        counter=$((counter+1))
+    done < "${CLIENTS_FILE_PATH}"
+
+    log_input "Client number: "
+    read -r -p "" client_id
+    if [ "${client_id}" -ge ${counter} ]; then
+        log_error "Invalid client number!"
+        exit 1
+    fi
+
+    local iter=1  
+    while IFS= read -r client || [ -n "${client}" ]
+    do
+        if [ "${iter}" -eq "${client_id}" ]; then
+            log_info "Selected client: ${client}"
+            selected_client="${client}"
+            break
+        fi
+        iter=$((iter+1))
+    done < "${CLIENTS_FILE_PATH}"
+
+    log_info "Writing selected client to clients file."
+    echo "${selected_client}" > "${CLIENTS_FILE_PATH}"
+
+    if backup_"${type}"; then
+        log_info "Manual client backup succeeded!"
+    else 
+        log_error "Manual client backup failed!"
+    fi
+
+    log_info "Restore original client list file."
+    # restore original client list file
+    mv "${CLIENTS_FILE_PATH}.bak" "${CLIENTS_FILE_PATH}"
+}
+
 # Backup clients
 function backup() {
     local type="$1"; shift
+    local manual="$1"; shift
     local general_log_file_path
     local backup_log_file_path
     local result_file_path
@@ -1422,6 +1475,11 @@ function backup() {
     fi
 
     update_client_list
+
+    if is_var_not_empty "${manual}" && ! is_var_null "${manual}" && is_var_equals "${manual}" "override" ; then
+        backup_override "${type}"
+        return 0
+    fi
 
     if [ "$(cat "${CLIENTS_FILE_PATH}" | wc -l)" -eq 0 ]; then
         log_warn "The CLIENT_FILE '${CLIENTS_FILE_PATH}' is empty!"
