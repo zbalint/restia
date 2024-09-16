@@ -1457,6 +1457,11 @@ function backup() {
     local result_file_path
     local result=0
 
+    if is_var_not_empty "${manual}" && ! is_var_null "${manual}" && is_var_equals "${manual}" "override" ; then
+        backup_override "${type}"
+        return 0
+    fi
+
     if [[ -t 0 ]] && [[ -f "/etc/systemd/system/${HOT_BACKUP_SCRIPT_SERVICE_NAME}.service" ]]; then
         ## Run by triggering the systemd unit, so everything gets logged:
         trigger_hot_backup
@@ -1475,11 +1480,6 @@ function backup() {
     fi
 
     update_client_list
-
-    if is_var_not_empty "${manual}" && ! is_var_null "${manual}" && is_var_equals "${manual}" "override" ; then
-        backup_override "${type}"
-        return 0
-    fi
 
     if [ "$(cat "${CLIENTS_FILE_PATH}" | wc -l)" -eq 0 ]; then
         log_warn "The CLIENT_FILE '${CLIENTS_FILE_PATH}' is empty!"
