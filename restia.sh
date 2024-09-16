@@ -1403,11 +1403,6 @@ function backup_override() {
 
     log_info "Manual ${type} backup process initiated."
 
-    log_info "Backup original client list file."
-    # backup original client list file
-    mv "${CLIENTS_FILE_PATH}" "${CLIENTS_FILE_PATH}.bak"
-
-
     log_info "Please select client from the following list:"
     local counter=1
     while IFS= read -r client || [ -n "${client}" ]
@@ -1433,6 +1428,10 @@ function backup_override() {
         fi
         iter=$((iter+1))
     done < "${CLIENTS_FILE_PATH}"
+
+    log_info "Backup original client list file."
+    # backup original client list file
+    mv "${CLIENTS_FILE_PATH}" "${CLIENTS_FILE_PATH}.bak"
 
     log_info "Writing selected client to clients file."
     echo "${selected_client}" > "${CLIENTS_FILE_PATH}"
