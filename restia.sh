@@ -1433,13 +1433,6 @@ function backup_override() {
         iter=$((iter+1))
     done < "${CLIENTS_FILE_PATH}"
 
-    log_info "Backup original client list file."
-    # backup original client list file
-    mv "${CLIENTS_FILE_PATH}" "${CLIENTS_FILE_PATH}.bak"
-
-    log_info "Writing selected client to clients file."
-    echo -n "${selected_client}" > "${CLIENTS_FILE_PATH}"
-
     username=$(get_remote_user "${selected_client}")
     hostname=$(get_remote_host "${selected_client}")
     source=$(get_remote_path "${selected_client}")
@@ -1457,20 +1450,29 @@ function backup_override() {
     read -r -p "" answer
 
     if is_var_equals "${answer}" "yes"; then
+        log_info "Backup original client list file."
+        # backup original client list file
+        mv "${CLIENTS_FILE_PATH}" "${CLIENTS_FILE_PATH}.bak"
+
+        log_info "Writing selected client to clients file."
+        echo -n "${selected_client}" > "${CLIENTS_FILE_PATH}"
+
         if backup_"${type}"; then
             log_info "Manual client backup succeeded!"
         else 
             log_error "Manual client backup failed!"
         fi
+
+        log_info "Restore original client list file."
+        # restore original client list file
+        mv "${CLIENTS_FILE_PATH}.bak" "${CLIENTS_FILE_PATH}"
     elif is_var_equals "${answer}" "no"; then
         log_info "Exiting without backup the client!"
+        return 0
     else
         log_error "Invalid answer!"
+        return 1
     fi
-
-    log_info "Restore original client list file."
-    # restore original client list file
-    mv "${CLIENTS_FILE_PATH}.bak" "${CLIENTS_FILE_PATH}"
 }
 
 # Backup clients
