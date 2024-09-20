@@ -1489,16 +1489,19 @@ function backup() {
         return 0
     fi
 
-    if [[ -t 0 ]] && [[ -f "/etc/systemd/system/${HOT_BACKUP_SCRIPT_SERVICE_NAME}.service" ]]; then
+    if [[ -t 0 ]] && [[ -f "/etc/systemd/system/${HOT_BACKUP_SCRIPT_SERVICE_NAME}.service" ]] && [[ -f "/etc/systemd/system/${COLD_BACKUP_SCRIPT_SERVICE_NAME}.service" ]]; then
         ## Run by triggering the systemd unit, so everything gets logged:
-        trigger_hot_backup
-        return 0
-    fi
 
-    if [[ -t 0 ]] && [[ -f "/etc/systemd/system/${COLD_BACKUP_SCRIPT_SERVICE_NAME}.service" ]]; then
-        ## Run by triggering the systemd unit, so everything gets logged:
-        trigger_cold_backup
-        return 0
+        if is_var_equals "${type}" "cold"; then
+            trigger_cold_backup
+            return 0
+        elif is_var_equals "${type}" "hot"; then
+            trigger_hot_backup
+            return 0
+        else
+            log_error "Invalid backup type!"
+            return 1
+        fi
     fi
 
     if ! is_var_equals "${type}" "cold" && ! is_var_equals "${type}" "hot"; then
