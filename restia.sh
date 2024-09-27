@@ -782,6 +782,7 @@ function repo_init_local() {
     log_info "Initialize kopia repository at ${repository_path}."
     kopia repository create filesystem --ecc-overhead-percent=10 --password="${repository_password}" --path="${repository_path}" 2>&1 | log_harvest
     kopia policy set --global --compression=zstd-fastest 2>&1 | log_harvest
+    return ${PIPESTATUS[0]}
 }
 
 # Init remote restic repository
@@ -792,6 +793,7 @@ function repo_init_remote() {
     repository_password=$(get_config_value "RESTIC_REPOSITORY_PASSWORD")
 
     RESTIC_REPOSITORY="${repository_path}" RESTIC_PASSWORD="${repository_password}" restic --verbose init 2>&1 | log_harvest
+    return ${PIPESTATUS[0]}
 }
 
 # Init backup repository
@@ -841,6 +843,7 @@ function snap_list_local() {
 
     # shellcheck disable=SC2086
     kopia snapshot list ${additional_params} 2>&1 | log_harvest
+    return ${PIPESTATUS[0]}
 }
 
 # List remote restic repository snapshots
@@ -868,6 +871,7 @@ function snap_list_remote() {
 
     # shellcheck disable=SC2086
     RESTIC_REPOSITORY="${repository_path}" RESTIC_PASSWORD="${repository_password}" restic --verbose snapshots ${additional_params} 2>&1 | log_harvest
+    return ${PIPESTATUS[0]}
 }
 
 # List all snapshots
@@ -894,6 +898,7 @@ function snap_create_local() {
     
     kopia repository connect filesystem --password="${repository_password}" --path="${repository_path}" --override-username="${username}" --override-hostname="${hostname}" > /dev/null 2>&1 && \
     kopia snapshot create --no-progress --tags="${tag}:${tag}" "${source}" 2>&1 | log_harvest
+    return ${PIPESTATUS[0]}
 }
 
 # Create remote restic snapshot
@@ -908,6 +913,7 @@ function snap_create_remote() {
     repository_password=$(get_config_value "RESTIC_REPOSITORY_PASSWORD")
 
     RESTIC_REPOSITORY="${repository_path}" RESTIC_PASSWORD="${repository_password}" restic backup --one-file-system --ignore-inode --ignore-ctime --no-scan "${source}" --tag "${tag}" --host "${hostname}"  2>&1 | log_harvest
+    return ${PIPESTATUS[0]}
 }
 
 # Create snapshot
@@ -940,6 +946,7 @@ function snap_restore_local() {
     
     kopia repository connect filesystem --password="${repository_password}" --path="${repository_path}" --override-username="${username}" --override-hostname="${hostname}" > /dev/null 2>&1 && \
     kopia snapshot restore --no-progress "${id}" "${destination}" 2>&1 | log_harvest
+    return ${PIPESTATUS[0]}
 }
 
 # Restore remote restic snapshot
@@ -954,6 +961,7 @@ function snap_restore_remote() {
     repository_password=$(get_config_value "RESTIC_REPOSITORY_PASSWORD")
 
     RESTIC_REPOSITORY="${repository_path}" RESTIC_PASSWORD="${repository_password}" restic restore "${id}":"${destination}" --host "${hostname}" --target "${destination}" --verify 2>&1 | log_harvest
+    return ${PIPESTATUS[0]}
 }
 
 # Restore snapshot
